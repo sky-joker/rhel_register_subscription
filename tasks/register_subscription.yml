@@ -1,0 +1,19 @@
+---
+- name: If linux virtual machine deployment
+  when:
+    - not template_name.startswith("^Windows")
+  block:
+    - name: Gather facts
+      ansible.builtin.setup:
+      delegate_to: "{{ vm_ip_addr }}"
+      register: setup_result
+
+    - name: Register the subscription
+      community.general.redhat_subscription:
+        username: "{{ rhel_user }}"
+        password: "{{ rhel_user_password }}"
+        force_register: true
+        state: present
+      delegate_to: "{{ vm_ip_addr }}"
+      when:
+        - setup_result.ansible_facts.ansible_distribution == "RedHat"

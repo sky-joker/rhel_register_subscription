@@ -1,0 +1,3 @@
+---
+- name: Include register_subscription tasks
+  ansible.builtin.include_tasks: register_subscription.yml
