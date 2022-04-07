@@ -1,7 +1,7 @@
 ---
 - name: If linux virtual machine deployment
   when:
-    - not template_name.startswith("^Windows")
+    - not template_name.startswith("Windows")
   block:
     - name: Gather facts
       ansible.builtin.setup:
