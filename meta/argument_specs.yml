@@ -3,15 +3,11 @@ argument_specs:
   main:
     short_description: "The variables are used in running the role"
     options:
-      vm_ip_addr:
-        type: str
-        required: true
-        description: "The IP address to connect to vm"
-      rhel_user:
+      red_hat_account:
         type: str
         required: false
         description: "The red hat account name to register the subscription"
-      rhel_user_password:
+      red_hat_account_password:
         type: str
         required: false
         description: "The password of red hat account"
