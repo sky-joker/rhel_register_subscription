@@ -16,11 +16,15 @@
 - name: Make sure the tasks are until completion
   ansible.builtin.async_status:
     jid: "{{ item.0.ansible_job_id }}"
-  delegate_to: "{{ item.1.ip }}"
+  delegate_to: "{{ item.1.1.ip }}"
   register: job_result
   until: job_result.finished
   retries: 100
   delay: 3
-  loop: "{{ target_vm_info | subelements('networks') }}"
+  vars:
+    data:
+      - "{{ register_subscription_result.results }}"
+      - "{{ target_vm_info | subelements('networks') }}"
+  loop: "{{ data[0] | zip(*data[1:]) | list }}"
   when:
-    - item.0.guest_fullname | regex_search("^Red Hat")
+    - item.1.0.guest_fullname | regex_search("^Red Hat")
