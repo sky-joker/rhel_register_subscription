@@ -5,9 +5,13 @@ argument_specs:
     options:
       red_hat_account:
         type: str
-        required: false
+        required: true
         description: "The red hat account name to register the subscription"
       red_hat_account_password:
         type: str
-        required: false
+        required: true
         description: "The password of red hat account"
+      subscription_register:
+        type: bool
+        required: true
+        description: "If the variable is true, register. If it is false, unregister"

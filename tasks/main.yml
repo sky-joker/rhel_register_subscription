@@ -1,3 +1,10 @@
 ---
 - name: Include register_subscription tasks
   ansible.builtin.include_tasks: register_subscription.yml
+  when:
+    - subscription_register is sameas true
+
+- name: Include unregister_subscription tasks
+  ansible.builtin.include_tasks: unregister_subscription.yml
+  when:
+    - subscription_register is sameas false

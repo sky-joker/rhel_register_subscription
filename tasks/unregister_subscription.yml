@@ -1,0 +1,58 @@
+---
+- name: If linux virtual machine deployment
+  when:
+    - not template_name.startswith("Windows")
+  block:
+    - name: Gather facts from Linux
+      ansible.builtin.setup:
+      delegate_to: "{{ item.1.ip }}"
+      async: 300
+      poll: 0
+      register: setup_result
+      loop: "{{ target_vm_info | subelements('networks') }}"
+
+    - name: Make sure the tasks are until completion
+      ansible.builtin.async_status:
+        jid: "{{ item.0.ansible_job_id }}"
+      delegate_to: "{{ item.1.1.ip }}"
+      register: job_result
+      until: job_result.finished
+      retries: 100
+      delay: 3
+      vars:
+        data:
+          - "{{ setup_result.results }}"
+          - "{{ target_vm_info | subelements('networks') }}"
+      loop: "{{ data[0] | zip(*data[1:]) | list }}"
+
+    - name: UnRegister the subscription
+      community.general.redhat_subscription:
+        username: "{{ red_hat_account }}"
+        password: "{{ red_hat_account_password }}"  # noqa no-log-password
+        force_register: true
+        state: absent
+      delegate_to: "{{ item.1.1.ip }}"
+      async: 300
+      poll: 0
+      register: register_subscription_result
+      vars:
+        data:
+          - "{{ job_result.results }}"
+          - "{{ target_vm_info | subelements('networks') }}"
+      loop: "{{ data[0] | zip(*data[1:]) | list }}"
+      when:
+        - item.0.ansible_facts.ansible_distribution == "RedHat"
+
+    - name: Make sure the tasks are until completion
+      ansible.builtin.async_status:
+        jid: "{{ item.0.ansible_job_id }}"
+      delegate_to: "{{ item.1.1.ip }}"
+      register: job_result
+      until: job_result.finished
+      retries: 100
+      delay: 3
+      vars:
+        data:
+          - "{{ register_subscription_result.results }}"
+          - "{{ target_vm_info | subelements('networks') }}"
+      loop: "{{ data[0] | zip(*data[1:]) | list }}"
